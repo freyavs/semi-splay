@@ -1,0 +1,17 @@
+THEORETISCHE VRAGEN
+--------------------------------------------------------------------
+vraag 1: 
+- voor k = 3: 4, voor k = 4: 8, voor k = 5: 16, ... 
+  DUS: aantal verschillende mogelijkheden voor k toppen:
+        2 x (aantal paden bij k-1 toppen) -> 2^(k-1) (te bewijzen met inductie?)
+
+vraag 2:
+-splaygrootte 3: ?
+-splaygrootte 4: ?
+-splaygrootte 7: niet mogelijk: het langste pad van een wortel naar de top is niet 7, dus zal er hier nog niet aan splay kunnen gedaan worden
+
+
+
+VERSLAG:
+-------------------------------------------------------------------
+
