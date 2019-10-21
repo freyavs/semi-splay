@@ -1,7 +1,7 @@
 package semisplay;
 
 /**
- * Klasse voor een node, houdt telkens zijn ouder, de sleutel en zijn rechter- en linkerkind bij.
+ * Klasse voor een top in de boom, houdt telkens zijn ouder, de sleutel en zijn rechter- en linkerkind bij.
  */
 public class Node {
 
@@ -15,19 +15,22 @@ public class Node {
         this.value = value;
     }
 
-    public void changeParent(Node p) {
-        if (this.getValue() < p.getValue()){
-            p.removeLeft();
-            p.addLeft(this);
-        }
-        else {
-            p.removeRight();
-            p.addRight(this);
-        }
-        parent = p;
-    }
-
+    /**
+     * Functie die als de ouder verandert van deze node verandert, ook zal zorgen dat bij die ouder node het juiste
+     * kind wordt ingesteld als nieuw kind
+     * @param p de (nieuwe) ouder van deze node
+     */
     public void setParent(Node p){
+        if (parent != null){
+            if (value < p.getValue()){
+                p.removeLeft();
+                p.addLeft(this);
+            }
+            else {
+                p.removeRight();
+                p.addRight(this);
+            }
+        }
         parent = p;
     }
 
@@ -42,12 +45,10 @@ public class Node {
 
     public void addLeft(Node c){
         left = c;
-        c.setParent(this);
     }
 
     public void addRight(Node c){
         right = c;
-        c.setParent(this);
     }
 
     public void removeLeft(){

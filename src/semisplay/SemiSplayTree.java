@@ -1,12 +1,12 @@
 package semisplay;
 
 import java.util.Iterator;
-import java.util.Stack;
 
 public class SemiSplayTree implements SearchTree<Integer>{
 
     private Node root;
-    private int splaysize;
+    private int size;
+    private int splaysize; //werkt nog niet met splayen
 
     public SemiSplayTree(Integer splaysize){
         this.splaysize = splaysize;
@@ -17,22 +17,21 @@ public class SemiSplayTree implements SearchTree<Integer>{
     public boolean add(Integer n){
         if (root == null){
             root = new Node(null, n);
+            size++;
             return true;
         }
         else {
             Node node = search(n);
-            if (node.getValue() == n) {
-                return false;
+            if (node.getValue() < n) {
+                node.addRight(new Node(node, n));
+                size++;
             } else if (node.getValue() > n) {
                 node.addLeft(new Node(node, n));
-                return true;
-            } else {
-                node.addRight(new Node(node, n));
-                return true;
+                size++;
             }
+            return node.getValue() == n;
         }
     }
-
 
     /**
      * @return wortel van de zoekboom */
@@ -41,43 +40,56 @@ public class SemiSplayTree implements SearchTree<Integer>{
     }
 
     /**
+     * Hulpfunctie voor andere methodes
      * @param n sleutel die we in de boom zoeken
      * @return Als node met sleutel gelijk aan n is gevonden, dan returnen we die node, anders returnen we
-     * de node die n als kind zou kunnen hebben. */
+     * de node die n als kind zou kunnen hebben. Als de boom leeg is return null;*/
     public Node search(Integer n){
         Node node = new Node(null, -1);
         Node next = root;
-        while (node.getValue() != next.getValue() && next.hasChild() ){
-            node = next;
-            if (n < next.getValue() && next.hasLeft()){
-                next = node.getLeft();
-            }
-            else if (n > next.getValue() && next.hasRight()){
-                next = node.getRight();
+        if (root != null) {
+            while (node.getValue() != next.getValue() && next.hasChild()) {
+                node = next;
+                if (n < next.getValue() && next.hasLeft()) {
+                    next = node.getLeft();
+                } else if (n > next.getValue() && next.hasRight()) {
+                    next = node.getRight();
+                }
             }
         }
         return next;
     }
 
-
     /** Zoek de gegeven sleutel op in de boom.
      * @return true als de sleutel gevonden werd. */
     public boolean contains(Integer n){
-        return search(n).getValue() == n;
+        Node node = search(n);
+        return node != null && node.getValue() == n;
     }
 
     /** Verwijder de gegeven sleutel uit de boom.
      * @return true als de sleutel gevonden en verwijderd werd. */
     public boolean remove(Integer n){
-        Node remove = search(n);
-        if (remove.getValue() == n) {
-            Node replacement = findReplacement(remove);
+        Node toRemove = search(n);
+        if (toRemove != null && toRemove.getValue() == n) {
+            Node replacement = findReplacement(toRemove);
             if (replacement != null){
-                replacement.changeParent(remove.getParent());
+                if (replacement.hasChild()){
+                    if (replacement.hasLeft()){
+                        Node p = replacement.getParent();
+                        replacement.getLeft().setParent(p);
+                    }
+                    else {
+                        Node p = replacement.getParent();
+                        replacement.getRight().setParent(p);
+                    }
+                }
+                replacement.setParent(toRemove.getParent());
             }
             else {
-                remove.getParent().removeChild(remove);
+                toRemove.getParent().removeChild(toRemove);
             }
+            size--;
             return true;
         }
         return false;
@@ -110,38 +122,32 @@ public class SemiSplayTree implements SearchTree<Integer>{
 
     /** @return het aantal sleutels in de boom. */
     public int size() {
-        int i = 0;
-        for (Integer val: this){
-            i++;
-        }
-        return i;
+        return size;
     }
 
     /** @return de diepte van de boom. */
     public int depth(){
-        return depthHelper(root);
+        return depthPart(root);
     }
-
 
     /**
      * Methode zodat we recursief kunnen zoeken naar de diepte van linker en rechterboom
      * @param n de node die de wortel is van de deelboom die we aan het doorzoeken zijn
      * @return de diepte van de deelboom
      */
-    public int depthHelper(Node n){
+    public int depthPart(Node n){
+        int maxDepth = 0;
         if (n != null){
-            int depthLeft = depthHelper(n.getLeft());
-            int depthRight = depthHelper(n.getRight());
+            int depthRight = depthPart(n.getRight());
+            int depthLeft = depthPart(n.getLeft());
             if (depthRight < depthLeft){
-                return depthLeft + 1;
+                maxDepth = depthLeft + 1;
             }
             else {
-                return depthRight + 1;
+                maxDepth = depthRight + 1;
             }
         }
-        else {
-            return 0;
-        }
+        return maxDepth;
     }
 
     @Override
@@ -149,6 +155,3 @@ public class SemiSplayTree implements SearchTree<Integer>{
        return new TreeIterator(root);
     }
 }
-
-//todo: veld size ipv 0(n) overlopen, kan parent veld niet weg uit constructor van node?
-// todo: lege bomen testen, grotere inputs en random inputs testen

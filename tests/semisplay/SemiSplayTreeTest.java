@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 
 public class SemiSplayTreeTest {
 
-    private Random RG = new Random();
+    private static Random RG = new Random();
 
     @Test
     public void checkRootAndChildrenAdd() {
@@ -54,12 +54,20 @@ public class SemiSplayTreeTest {
     }
 
     @Test
+    public void containsEmptyTree() {
+        SemiSplayTree tree = new SemiSplayTree(7);
+        assertFalse(tree.contains(10));
+    }
+
+    @Test
     public void checkSize() {
         SemiSplayTree tree = new SemiSplayTree(7);
         for (int i = 0; i < 320; i++) {
             tree.add(i);
         }
-        assertEquals(320, tree.size());
+        tree.remove(4);
+        tree.remove(100);
+        assertEquals(318, tree.size());
     }
 
     @Test
@@ -79,6 +87,38 @@ public class SemiSplayTreeTest {
         tree.add(34); tree.add(3); tree.add(22);
         Boolean bool = tree.remove(70);
         assertEquals(6, tree.size());
+        assertFalse(bool);
+    }
+
+    @Test
+    public void removeWhenReplacementHasChild1() {
+        SemiSplayTree tree = new SemiSplayTree(7);
+        tree.add(40); tree.add(20); tree.add(60);
+        tree.add(10); tree.add(5);
+        Boolean bool = tree.remove(20);
+        assertEquals(4, tree.size());
+        assertTrue(bool);
+        assertEquals(10, tree.getRoot().getLeft().getValue());
+        assertEquals(5, tree.getRoot().getLeft().getLeft().getValue());
+    }
+
+    @Test
+    public void removeWhenReplacementHasChild2() {
+        SemiSplayTree tree = new SemiSplayTree(7);
+        tree.add(40); tree.add(20); tree.add(60);
+        tree.add(10); tree.add(5);tree.add(30); tree.add(90);
+        tree.add(100); tree.add(120);
+        Boolean bool = tree.remove(90);
+        assertTrue(bool);
+        assertEquals(8, tree.size());
+        assertEquals(100, tree.getRoot().getRight().getRight().getValue());
+        assertEquals(120, tree.getRoot().getRight().getRight().getRight().getValue());
+    }
+
+    @Test
+    public void removeFromEmptyTree() {
+        SemiSplayTree tree = new SemiSplayTree(7);
+        Boolean bool = tree.remove(10);
         assertFalse(bool);
     }
 
@@ -127,6 +167,18 @@ public class SemiSplayTreeTest {
         }
         assertEquals(320, tree.depth());
     }
+
+    @Test
+    public void depthTestPrintWithIterator() {
+        SemiSplayTree tree = new SemiSplayTree(7);
+        for (int i = 0; i < 20; i++) {
+            tree.add(RG.nextInt());
+        }
+        for (Integer val: tree){
+            System.out.println(val);
+        }
+    }
+
 
 
 }

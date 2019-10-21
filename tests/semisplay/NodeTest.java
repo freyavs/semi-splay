@@ -35,7 +35,7 @@ public class NodeTest {
         Node newparent = new Node (null, 10);
         Node child = new Node(node, 5);
         Node child2 = new Node(node, 9);
-        child.changeParent(newparent);
+        child.setParent(newparent);
         assertNull(node.getLeft());
         assertEquals(5, newparent.getLeft().getValue());
     }
