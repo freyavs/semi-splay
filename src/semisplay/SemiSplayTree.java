@@ -2,9 +2,9 @@ package semisplay;
 
 import java.util.Iterator;
 
-public class SemiSplayTree implements SearchTree<Integer>{
+public class SemiSplayTree<E extends Comparable<E>> implements SearchTree<E>{
 
-    private Node root;
+    private Node<E> root;
     private int size;
     private int splaysize; //werkt nog niet met splayen
 
@@ -14,28 +14,28 @@ public class SemiSplayTree implements SearchTree<Integer>{
 
     /** Voeg de gegeven sleutel toe aan de boom als deze er nog niet in zit.
      * @return true als de sleutel effectief toegevoegd werd. */
-    public boolean add(Integer n){
+    public boolean add(E n){
         if (root == null){
-            root = new Node(null, n);
+            root = new Node<>(null, n);
             size++;
             return true;
         }
         else {
-            Node node = search(n);
-            if (node.getValue() < n) {
-                node.addRight(new Node(node, n));
+            Node<E> node = search(n);
+            if (node.getValue().compareTo(n) < 0) {
+                node.addRight(new Node<>(node, n));
                 size++;
-            } else if (node.getValue() > n) {
-                node.addLeft(new Node(node, n));
+            } else if (node.getValue().compareTo(n) > 0) {
+                node.addLeft(new Node<>(node, n));
                 size++;
             }
-            return node.getValue() == n;
+            return node.getValue() != n;
         }
     }
 
     /**
      * @return wortel van de zoekboom */
-    public Node getRoot() {
+    public Node<E> getRoot() {
         return root;
     }
 
@@ -43,16 +43,16 @@ public class SemiSplayTree implements SearchTree<Integer>{
      * Hulpfunctie voor andere methodes
      * @param n sleutel die we in de boom zoeken
      * @return Als node met sleutel gelijk aan n is gevonden, dan returnen we die node, anders returnen we
-     * de node die n als kind zou kunnen hebben. Als de boom leeg is return null;*/
-    public Node search(Integer n){
-        Node node = new Node(null, -1);
-        Node next = root;
+     * de node die n als kind zou kunnen hebben. Als de boom leeg is (wortel is null) return null;*/
+    public Node<E> search(E n){
+        Node<E> node = null;
+        Node<E> next = root;
         if (root != null) {
-            while (node.getValue() != next.getValue() && next.hasChild()) {
+            while (node == null || node.getValue() != next.getValue()) {
                 node = next;
-                if (n < next.getValue() && next.hasLeft()) {
+                if (n.compareTo(next.getValue()) < 0 && next.hasLeft()) {
                     next = node.getLeft();
-                } else if (n > next.getValue() && next.hasRight()) {
+                } else if (n.compareTo(next.getValue()) > 0 && next.hasRight()) {
                     next = node.getRight();
                 }
             }
@@ -62,47 +62,46 @@ public class SemiSplayTree implements SearchTree<Integer>{
 
     /** Zoek de gegeven sleutel op in de boom.
      * @return true als de sleutel gevonden werd. */
-    public boolean contains(Integer n){
-        Node node = search(n);
-        return node != null && node.getValue() == n;
+    public boolean contains(E n){
+        Node<E> node = search(n);
+        return node != null && node.getValue().compareTo(n) == 0;
     }
 
     /** Verwijder de gegeven sleutel uit de boom.
      * @return true als de sleutel gevonden en verwijderd werd. */
-    public boolean remove(Integer n){
-        Node toRemove = search(n);
-        if (toRemove != null && toRemove.getValue() == n) {
-            Node replacement = findReplacement(toRemove);
+    public boolean remove(E n){
+        Node<E> toRemove = search(n);
+        if (toRemove != null && toRemove.getValue().compareTo(n) == 0) {
+            Node<E> replacement = findReplacement(toRemove);
             if (replacement != null){
-                if (replacement.hasChild()){
-                    if (replacement.hasLeft()){
-                        Node p = replacement.getParent();
-                        replacement.getLeft().setParent(p);
-                    }
-                    else {
-                        Node p = replacement.getParent();
-                        replacement.getRight().setParent(p);
-                    }
+                if (replacement.hasLeft()){
+                    Node<E> p = replacement.getParent();
+                    replacement.getLeft().setParent(p);
+                }
+                else if (replacement.hasRight()) {
+                    Node<E> p = replacement.getParent();
+                    replacement.getRight().setParent(p);
                 }
                 replacement.setParent(toRemove.getParent());
             }
             else {
-                toRemove.getParent().removeChild(toRemove);
+                toRemove.getParent().removeChild(toRemove); //node is een blad en mag dus gewoon verwijderd worden
             }
             size--;
-            return true;
         }
-        return false;
+        return toRemove != null && toRemove.getValue().compareTo(n) == 0;
     }
 
 
     /**
+     * Gebruik deze methode wanneer een node moet verwijderd worden uit de boom, en we hiervoor zijn vervanger
+     * willen vinden.
      * @param node de node waarvoor we een vervanger moeten vinden
      * @return null als de node geen kinderen heeft, anders oftewel de kleinste node in de grote deelboom of
      * grootste node in de kleine deelboom*/
-    public Node findReplacement(Node node){
-        Node replacement = null;
-        Node tmp;
+    public Node<E> findReplacement(Node<E> node){
+        Node<E> replacement = null;
+        Node<E> tmp;
         if (node.hasRight()){
             replacement = node.getRight();
             while (replacement.hasLeft()){
@@ -131,9 +130,10 @@ public class SemiSplayTree implements SearchTree<Integer>{
     }
 
     /**
-     * Methode zodat we recursief kunnen zoeken naar de diepte van linker en rechterboom
+     * Methode zodat we recursief kunnen zoeken naar de diepte van linker en rechterboom, en de grootste diepte
+     * teruggeven.
      * @param n de node die de wortel is van de deelboom die we aan het doorzoeken zijn
-     * @return de diepte van de deelboom
+     * @return de diepte van de langste deelboom
      */
     public int depthPart(Node n){
         int maxDepth = 0;
@@ -151,7 +151,7 @@ public class SemiSplayTree implements SearchTree<Integer>{
     }
 
     @Override
-    public Iterator<Integer> iterator() {
-       return new TreeIterator(root);
+    public Iterator<E> iterator() {
+       return new TreeIterator<>(root);
     }
 }

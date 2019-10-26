@@ -7,11 +7,11 @@ import java.util.Stack;
  * Klasse die wordt gebruikt als iterator voor SemiSplayTree, houdt een stack bij om de boom
  * m.b.v. DFS te overlopen.
  */
-public class TreeIterator implements Iterator<Integer> {
-    private Node visiting;
-    private Stack<Node> stack;
+public class TreeIterator<E extends Comparable<E>> implements Iterator<E> {
+    private Node<E> visiting;
+    private Stack<Node<E>> stack;
 
-    public TreeIterator(Node root){
+    public TreeIterator(Node<E> root){
         visiting = root;
         stack = new Stack<>();
     }
@@ -22,13 +22,13 @@ public class TreeIterator implements Iterator<Integer> {
     }
 
     @Override
-    public Integer next() {
+    public E next() {
         while (visiting != null) {
             stack.push(visiting);
             visiting = visiting.getLeft();
         }
         visiting = stack.pop();
-        Integer value = visiting.getValue();
+        E value = visiting.getValue();
         visiting = visiting.getRight();
         return value;
     }
