@@ -34,7 +34,7 @@ public class SemiSplayTree<E extends Comparable<E>> implements SearchTree<E>{
     }
 
     /**
-     * @return wortel van de zoekboom */
+     * @return wortel van de zoekboom, methode wordt gebruikt in tests*/
     public Node<E> getRoot() {
         return root;
     }
@@ -73,19 +73,39 @@ public class SemiSplayTree<E extends Comparable<E>> implements SearchTree<E>{
         Node<E> toRemove = search(n);
         if (toRemove != null && toRemove.getValue().compareTo(n) == 0) {
             Node<E> replacement = findReplacement(toRemove);
+            //replacement is null als de te verwijderen top een blad is
             if (replacement != null){
+                //de vervangende top heeft linkerkind
                 if (replacement.hasLeft()){
                     Node<E> p = replacement.getParent();
                     replacement.getLeft().setParent(p);
                 }
+                //de vervangende top heeft rechterkind
                 else if (replacement.hasRight()) {
                     Node<E> p = replacement.getParent();
                     replacement.getRight().setParent(p);
                 }
+                //start met vervangen van de te verwijderen top door de vervangende top
+                replacement.getParent().removeChild(replacement); //als de replacement al verwijderd was hierboven zal dit niets doen
+                Node<E> left = toRemove.getLeft();
+                Node<E> right = toRemove.getRight();
                 replacement.setParent(toRemove.getParent());
+
+                //als de parent van de verwijderde top null was, was dit de wortel
+                if (toRemove.getParent() == null){
+                    root = replacement;
+                }
+                if (right != null) {
+                    right.setParent(replacement);
+                }
+                if (left != null) {
+                    left.setParent(replacement);
+                }
+                replacement.addRight(right);
+                replacement.addLeft(left);
             }
             else {
-                toRemove.getParent().removeChild(toRemove); //node is een blad en mag dus gewoon verwijderd worden
+                toRemove.getParent().removeChild(toRemove);
             }
             size--;
         }
@@ -102,6 +122,7 @@ public class SemiSplayTree<E extends Comparable<E>> implements SearchTree<E>{
     public Node<E> findReplacement(Node<E> node){
         Node<E> replacement = null;
         Node<E> tmp;
+        //zoek kleinste in grote deelboom
         if (node.hasRight()){
             replacement = node.getRight();
             while (replacement.hasLeft()){
@@ -109,6 +130,7 @@ public class SemiSplayTree<E extends Comparable<E>> implements SearchTree<E>{
                 replacement = tmp.getLeft();
             }
         }
+        //zoek grootste in kleine deelboom
         else if (node.hasLeft()){
             replacement = node.getLeft();
             while (replacement.hasRight()){
@@ -124,9 +146,9 @@ public class SemiSplayTree<E extends Comparable<E>> implements SearchTree<E>{
         return size;
     }
 
-    /** @return de diepte van de boom. */
+    /** @return de diepte van de boom. Returnt -1 als boom leeg is. */
     public int depth(){
-        return depthPart(root);
+        return depthPart(root) - 1;
     }
 
     /**

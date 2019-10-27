@@ -96,12 +96,43 @@ public class SemiSplayTreeTest {
     public void removeWhenReplacementHasChild1() {
         SemiSplayTree<Integer> tree = new SemiSplayTree<>(7);
         tree.add(40); tree.add(20); tree.add(60);
-        tree.add(10); tree.add(5);
+        tree.add(10); tree.add(5); tree.add(3); tree.add(7);
         boolean bool = tree.remove(20);
-        assertEquals(4, tree.size());
+        assertEquals(6, tree.size());
         assertTrue(bool);
         assertEquals((Integer)10, tree.getRoot().getLeft().getValue());
         assertEquals((Integer)5, tree.getRoot().getLeft().getLeft().getValue());
+    }
+
+
+    @Test
+    public void removeRoot(){
+        SemiSplayTree<Integer> tree = new SemiSplayTree<>(7);
+        tree.add(40); tree.add(20); tree.add(60);
+        tree.add(10); tree.add(5); tree.add(3); tree.add(7);
+        tree.add(71); tree.add(80);
+        tree.remove(40); tree.remove(71);tree.remove(10);
+        assertEquals((Integer)60, tree.getRoot().getValue());
+        for (Integer v: tree){
+            Node<Integer> node = tree.search(v);
+            Node<Integer> val = node.getParent();
+            int n;
+            int left = -1;
+            int right = -1;
+            if (val == null){
+                n = -1;
+            }
+            else {
+                n = val.getValue();
+            }
+            if (node.getLeft() != null){
+                left = node.getLeft().getValue();
+            }
+            if (node.getRight() != null){
+                right = node.getRight().getValue();
+            }
+            System.out.println(v + " - parent: " + n + " - left, right = ( " + left + ", " + right + " )");
+        }
     }
 
     @Test
@@ -115,6 +146,17 @@ public class SemiSplayTreeTest {
         assertEquals(8, tree.size());
         assertEquals((Integer)100, tree.getRoot().getRight().getRight().getValue());
         assertEquals((Integer)120, tree.getRoot().getRight().getRight().getRight().getValue());
+    }
+
+    @Test
+    public void removeWhenReplacementHasChild3() {
+        SemiSplayTree<Integer> tree = new SemiSplayTree<>(7);
+        tree.add(20); tree.add(10); tree.add(40);
+        tree.add(5); tree.add(15);tree.add(30); tree.add(50);
+        tree.add(2);
+        tree.remove(15);
+        tree.remove(10);
+        assertEquals(6, tree.size());
     }
 
     @Test
@@ -152,13 +194,13 @@ public class SemiSplayTreeTest {
         tree.add(20); tree.add(9); tree.add(6);
         tree.add(34); tree.add(3); tree.add(22);
         tree.add(13); tree.add(21);
-        assertEquals(4, tree.depth());
+        assertEquals(3, tree.depth());
     }
 
     @Test
     public void depthTest2() {
         SemiSplayTree<Integer> tree = new SemiSplayTree<>(7);
-        assertEquals(0, tree.depth());
+        assertEquals(-1, tree.depth());
     }
 
     @Test
@@ -167,11 +209,18 @@ public class SemiSplayTreeTest {
         for (int i = 0; i < 320; i++) {
             tree.add(i);
         }
-        assertEquals(320, tree.depth());
+        assertEquals(319, tree.depth());
     }
 
     @Test
-    public void depthTestPrintWithIterator() {
+    public void depthTest4() {
+        SemiSplayTree<Integer> tree = new SemiSplayTree<>(7);
+        tree.add(5);
+        assertEquals(0, tree.depth());
+    }
+
+    @Test
+    public void printWithIterator() {
         SemiSplayTree<Integer> tree = new SemiSplayTree<>(7);
         for (int i = 0; i < 20; i++) {
             tree.add(RG.nextInt());
@@ -188,10 +237,9 @@ public class SemiSplayTreeTest {
         tree.add("hallo"); tree.add("dit"); tree.add("negen");
         tree.add("boom"); tree.add("na");tree.add("eenheellangwoordofmssnietzolang"); tree.add("d");
         tree.add("negen"); tree.add("");
-        for (String v: tree){
-            System.out.println(v);
-        }
-
+        tree.remove("negen");
+        tree.remove("ietsnietinboom");
+        assertFalse(tree.contains("negen"));
     }
 
 
@@ -209,6 +257,55 @@ public class SemiSplayTreeTest {
         tree.remove(value);
         assertEquals(size - 1, tree.size());
         assertFalse(tree.contains(value));
+    }
+
+
+    @Test
+    public void treeBigTest() {
+        SemiSplayTree<Integer> tree = new SemiSplayTree<>(7);
+        tree.add(40);tree.add(20);tree.add(64);tree.add(13); tree.add(37);
+        tree.add(51);tree.add(60);tree.add(28);tree.add(31);tree.add(1000000);
+        tree.add(109); tree.add(56);tree.add(63);tree.add(29);
+        tree.add(31);
+        assertEquals(14, tree.size());
+        assertTrue(tree.contains(56) && tree.contains(29));
+        assertEquals((Integer)31, tree.getRoot().getLeft().getRight().getLeft().getRight().getValue());
+        assertEquals((Integer)56, tree.getRoot().getRight().getLeft().getRight().getLeft().getValue());
+        assertEquals(5, tree.depth());
+
+        tree.remove(28);
+        tree.remove(56); tree.remove(63);
+        assertEquals(4, tree.depth());
+        assertEquals((Integer)29, tree.getRoot().getLeft().getRight().getLeft().getValue());
+        assertEquals((Integer)31, tree.getRoot().getLeft().getRight().getLeft().getRight().getValue());
+        assertEquals(11, tree.size());
+        tree.remove(13);
+        assertNull(tree.getRoot().getLeft().getLeft());
+        tree.remove(20);
+        tree.remove(20);
+        System.out.println("\n");
+        for (Integer v: tree){
+            Node<Integer> node = tree.search(v);
+            Node<Integer> val = node.getParent();
+            int n;
+            int left = -1;
+            int right = -1;
+            if (val == null){
+                n = -1;
+            }
+            else {
+                n = val.getValue();
+            }
+            if (node.getLeft() != null){
+                left = node.getLeft().getValue();
+            }
+            if (node.getRight() != null){
+                right = node.getRight().getValue();
+            }
+            System.out.println(v + " - parent: " + n + " - left, right = ( " + left + ", " + right + " )");
+        }
+        assertEquals(3, tree.depth());
+        assertEquals(9, tree.size());
     }
 
 

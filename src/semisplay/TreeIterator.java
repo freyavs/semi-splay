@@ -8,28 +8,28 @@ import java.util.Stack;
  * m.b.v. DFS te overlopen.
  */
 public class TreeIterator<E extends Comparable<E>> implements Iterator<E> {
-    private Node<E> visiting;
-    private Stack<Node<E>> stack;
+    private Node<E> visit;
+    private Stack<Node<E>> s;
 
     public TreeIterator(Node<E> root){
-        visiting = root;
-        stack = new Stack<>();
+        visit = root;
+        s = new Stack<>();
     }
 
     @Override
     public boolean hasNext() {
-        return ! (visiting == null && stack.isEmpty());
+        return ! (visit == null && s.isEmpty());
     }
 
     @Override
     public E next() {
-        while (visiting != null) {
-            stack.push(visiting);
-            visiting = visiting.getLeft();
+        while (visit != null) {
+            s.push(visit);
+            visit = visit.getLeft();
         }
-        visiting = stack.pop();
-        E value = visiting.getValue();
-        visiting = visiting.getRight();
+        visit = s.pop();
+        E value = visit.getValue();
+        visit = visit.getRight();
         return value;
     }
 }

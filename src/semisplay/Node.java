@@ -10,7 +10,7 @@ public class Node<E extends Comparable<E>> {
     private Node<E> right;
     private E value;
 
-    public Node(Node parent, E value) {
+    public Node(Node<E> parent, E value) {
         this.parent = parent;
         this.value = value;
     }
@@ -21,7 +21,7 @@ public class Node<E extends Comparable<E>> {
      * @param p de (nieuwe) ouder van deze node
      */
     public void setParent(Node<E> p){
-        if (parent != null){
+        if (parent != null && p != null){
             if (value.compareTo(p.getValue()) < 0){
                 p.removeLeft();
                 p.addLeft(this);
